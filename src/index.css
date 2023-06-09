@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.red { background-color: #C6262E }
+.yellow { background-color: #F9C541 }
+.green { background-color: #68B622 }
+.blue { background-color: #3689E6 }
+.purple { background-color: #A56CE3 }
+.brown { background-color: #C16601 }
+
+.size-114 {
+    width: 114px;
+    height: 114px;
+}
+
+.size-57 {
+    width: 57px;
+    height: 57px;
+}
+
+.size-38 {
+    width: 38px;
+    height: 38px;
+}
