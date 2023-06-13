@@ -9,7 +9,7 @@ type SelectorType = {
     }[][]
 
     gameState: {
-        difficulty: string,
+        difficulty: 'easy' | 'medium' | 'hard',
         darkMode: boolean,
         victory: boolean,
         icons: boolean,
@@ -17,12 +17,26 @@ type SelectorType = {
         moves: number
     }
 
+    highscores: {
+        easy: number,
+        medium: number,
+        hard: number
+    }
+
     setGameState: Function
     setGameboard: Function
+    setHighscores: Function
 }
 
-const handleMove = (color: string, gameboard: { color: string, id: number }[][], setGameState: Function, 
-gameState: { difficulty: string, moves: number, icons: boolean }, setGameboard: Function) => {
+const handleMove = (
+    color: string,
+    gameboard: SelectorType['gameboard'],
+    setGameState: SelectorType['setGameState'],
+    gameState: SelectorType['gameState'],
+    setGameboard: SelectorType['setGameboard'],
+    highscores: SelectorType['highscores'],
+    setHighscores: SelectorType['setHighscores']
+) => {
     const gameboardAux = gameboard
     const originBlocks = [gameboard[0][0].id]
     const currentColor = gameboard[0][0].color
@@ -59,42 +73,48 @@ gameState: { difficulty: string, moves: number, icons: boolean }, setGameboard: 
 
     
     newColorBlocks.push(...originBlocks)
-    if (newColorBlocks.length === gameboard.length*gameboard.length) setGameState({ ...gameState, victory: true })
+
+    if (newColorBlocks.length === gameboard.length*gameboard.length) {
+        setGameState({ ...gameState, victory: true })
+        
+        if (gameState.moves < highscores[gameState.difficulty] || highscores[gameState.difficulty] === 0) setHighscores({ ...highscores, [gameState.difficulty]: gameState.moves })
+    }
+
     setGameboard(gameboardAux)
 }
 
 const Selector: React.FC<SelectorType> = (props) => {
-    const { gameState, setGameState, gameboard, setGameboard } = props
+    const { gameState, setGameState, gameboard, setGameboard, highscores, setHighscores } = props
 
     return (
         <div className="flex flex-row gap-10 justify-center mt-[10px] pb-[20px]">
             <div className={`bg-[#C6262E] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('red', gameboard, setGameState, gameState, setGameboard)}>
+                onClick={() => handleMove('red', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
                 {gameState.icons && <FaAppleAlt className='text-white text-3xl' />}
             </div>
 
             <div className={`bg-[#F9C541] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('yellow', gameboard, setGameState, gameState, setGameboard)}>
+                onClick={() => handleMove('yellow', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
                 {gameState.icons && <AiFillStar className='text-white text-3xl' />}
             </div>
 
             <div className={`bg-[#68B622] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('green', gameboard, setGameState, gameState, setGameboard)}>
+                onClick={() => handleMove('green', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
                 {gameState.icons && <IoMdFlower className='text-white text-3xl' />}
             </div>
 
             <div className={`bg-[#3689E6] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('blue', gameboard, setGameState, gameState, setGameboard)}>
+                onClick={() => handleMove('blue', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
                 {gameState.icons && <FaAnchor className='text-white text-3xl' />}
             </div>
 
             <div className={`bg-[#A56CE3] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('purple', gameboard, setGameState, gameState, setGameboard)}>
+                onClick={() => handleMove('purple', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
                 {gameState.icons && <FaPaw className='text-white text-3xl' />}
             </div>
 
             <div className={`bg-[#C16601] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('brown', gameboard, setGameState, gameState, setGameboard)}>
+                onClick={() => handleMove('brown', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
                 {gameState.icons && <FaBasketballBall className='text-white text-3xl' />}
             </div>
 

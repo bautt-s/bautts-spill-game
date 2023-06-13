@@ -1,9 +1,18 @@
-import { BsQuestionCircle, BsMoonFill, BsSunFill } from 'react-icons/bs'
+import { BsQuestionCircle, BsMoonFill, BsSunFill, BsGithub } from 'react-icons/bs'
 import { LuRefreshCw } from 'react-icons/lu'
 import Gameboard from './components/gameboard'
 import NewGame from './components/new-game'
 import Selector from './components/color-selector'
 import { useState, useEffect } from 'react'
+
+type GameStateType = {
+    difficulty: 'easy' | 'medium' | 'hard',
+    darkMode: boolean,
+    victory: boolean,
+    icons: boolean,
+    games: number
+    moves: number
+}
 
 const generateRandomColor = () => {
     // this function takes a random number from 0 to 5, and gets a color based on that number
@@ -64,8 +73,14 @@ const generateMatrix = (difficulty: string) => {
 }
 
 const App = () => {
+    const [highscores, setHighscores] = useState({
+        easy: 0,
+        medium: 0,
+        hard: 0,
+    })
+
     const [modalNewGame, setModalNewGame] = useState(false)
-    const [gameState, setGameState] = useState({
+    const [gameState, setGameState] = useState<GameStateType>({
         difficulty: 'medium',
         darkMode: false,
         victory: false,
@@ -73,6 +88,7 @@ const App = () => {
         games: 0,
         moves: 0
     })
+
     const [gameboard, setGameboard] = useState(generateMatrix(gameState.difficulty))
 
     useEffect(() => {
@@ -88,8 +104,17 @@ const App = () => {
         if (gameState.victory) setModalNewGame(true)
     }, [gameState.victory])
 
+    useEffect(() => {
+        const highscoresData = window.localStorage.getItem('SPILLGAME_HIGHSCORES')
+        if (highscoresData) setHighscores(JSON.parse(highscoresData))
+    }, [])
+
+    useEffect(() => {
+        if (gameState.victory) window.localStorage.setItem('SPILLGAME_HIGHSCORES', JSON.stringify(highscores))
+    }, [highscores])
+
     return (
-        <div className={`w-screen h-screen bg-[#555555] flex justify-center items-center ${gameState.darkMode && 'dark'}`}>
+        <div className={`w-screen h-screen bg-[#555555] flex flex-col justify-center items-center ${gameState.darkMode && 'dark'}`}>
             <div className="w-[600px] bg-white dark:bg-[#323332] rounded-md shadow-2xl transition-colors duration-300">
                 <h1 className="font-bold text-lg text-center py-[10px] rounded-md dark:text-white">Paint & Spill</h1>
 
@@ -105,9 +130,9 @@ const App = () => {
 
                     <div className="flex flex-row ml-auto">
                         <LuRefreshCw className='text-2xl cursor-pointer' onClick={() => setModalNewGame(true)} />
-                        {gameState.darkMode 
-                        ? <BsSunFill className='text-2xl ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: false })} /> 
-                        : <BsMoonFill className='text-2xl ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: true })} />}
+                        {gameState.darkMode
+                            ? <BsSunFill className='text-2xl ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: false })} />
+                            : <BsMoonFill className='text-2xl ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: true })} />}
                         <BsQuestionCircle className='text-2xl ml-[15px] cursor-pointer' />
                     </div>
                 </div>
@@ -116,10 +141,19 @@ const App = () => {
                 <Gameboard gameState={gameState} gameboard={gameboard} />
 
                 { /* selector */}
-                <Selector gameState={gameState} setGameState={setGameState} gameboard={gameboard} setGameboard={setGameboard} />
+                <Selector gameState={gameState} setGameState={setGameState} gameboard={gameboard}
+                    setGameboard={setGameboard} highscores={highscores} setHighscores={setHighscores} />
             </div>
 
-            {modalNewGame && <NewGame setModalNewGame={setModalNewGame} gameState={gameState} setGameState={setGameState} />}
+            <div className='w-full h-[60px] absolute bottom-0 flex items-center justify-center'>
+                <span className='font-semibold text-white mr-[20px]'>Powered ⚡ by Bautista Sánchez</span>
+
+                <a href='https://github.com/bautt-s/bautts-spill-game' target='_blank'>
+                    <BsGithub className='text-3xl text-white' />
+                </a>
+            </div>
+
+            {modalNewGame && <NewGame setModalNewGame={setModalNewGame} gameState={gameState} setGameState={setGameState} highscores={highscores} />}
         </div>
     )
 }
