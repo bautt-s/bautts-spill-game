@@ -33,7 +33,7 @@ const NewGame: React.FC<NewGameType> = (props) => {
         <div className="w-screen h-screen absolute top-0 left-0 flex items-center justify-center">
             <div className='bg-[#00000060] w-screen h-screen absolute z-1 backdrop-blur-sm' onClick={() => setModalNewGame(false)}></div>
 
-            <div className="bg-white dark:bg-[#323332] flex flex-col justify-center w-[400px] z-50 px-[20px] py-[30px] rounded-md dark:shadow-[#323332] dark:shadow-xl">
+            <div className="bg-white dark:bg-[#323332] flex flex-col justify-center w-[380px] sm:w-[400px] z-50 px-[20px] py-[30px] rounded-md dark:shadow-[#323332] dark:shadow-xl">
                 {gameState.victory && <span className='text-center'>You achieved victory in <strong>{gameState.moves}</strong> moves!</span>}
 
                 <div className='grid grid-cols-3 gap-[10px] mt-[15px]'>

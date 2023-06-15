@@ -41,20 +41,20 @@ const Gameboard: React.FC<GameboardProps> = (props) => {
     const pixelSize = `size-${generatePixelSize()}`
 
     return (
-        <div className="w-full pb-[25px] px-[15px] ">
-            <div className='w-[570px]'>
+        <div className="w-full pb-[25px] px-[5px] sm:px-[15px]">
+            <div className='w-[390px] sm:w-[570px]'>
                 {gameboard.map((row, rowIndex) => {
                     return (
                         <div key={rowIndex} className="flex flex-row">
                             {row.map((value, colIndex) => {
                                 return (
                                     <div key={colIndex} className={`${pixelSize} ${value.color} border-r-[1px] border-b-[1px] dark:border-[#323332] flex items-center justify-center`}>
-                                        {(icons && value.color === 'red') && <FaAppleAlt className={`text-white ${(pixelSize === 'size-38') ? 'text-xl' : 'text-3xl'}`} />}
-                                        {(icons && value.color === 'yellow') && <AiFillStar className={`text-white ${(pixelSize === 'size-38') ? 'text-xl' : 'text-3xl'}`} />}
-                                        {(icons && value.color === 'green') && <IoMdFlower className={`text-white ${(pixelSize === 'size-38') ? 'text-xl' : 'text-3xl'}`} />}
-                                        {(icons && value.color === 'blue') && <FaAnchor className={`text-white ${(pixelSize === 'size-38') ? 'text-xl' : 'text-3xl'}`} />}
-                                        {(icons && value.color === 'purple') && <FaPaw className={`text-white ${(pixelSize === 'size-38') ? 'text-xl' : 'text-3xl'}`} />}
-                                        {(icons && value.color === 'brown') && <FaBasketballBall className={`text-white ${(pixelSize === 'size-38') ? 'text-xl' : 'text-3xl'}`} />}
+                                        {(icons && value.color === 'red') && <FaAppleAlt className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
+                                        {(icons && value.color === 'yellow') && <AiFillStar className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
+                                        {(icons && value.color === 'green') && <IoMdFlower className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
+                                        {(icons && value.color === 'blue') && <FaAnchor className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
+                                        {(icons && value.color === 'purple') && <FaPaw className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
+                                        {(icons && value.color === 'pink') && <FaBasketballBall className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
                                     </div>
                                 )
                             })}

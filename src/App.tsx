@@ -31,7 +31,7 @@ const generateRandomColor = () => {
         case (4):
             return 'purple'
         case (5):
-            return 'brown'
+            return 'pink'
         default:
             return ''
     }
@@ -114,26 +114,26 @@ const App = () => {
     }, [highscores])
 
     return (
-        <div className={`w-screen h-screen bg-[#555555] flex flex-col justify-center items-center ${gameState.darkMode && 'dark'}`}>
-            <div className="w-[600px] bg-white dark:bg-[#323332] rounded-md shadow-2xl transition-colors duration-300">
+        <div className={`overflow-y-hidden w-screen h-screen bg-[#555555] flex flex-col justify-center items-center ${gameState.darkMode && 'dark'}`}>
+            <div className="w-[400px] sm:w-[600px] bg-white dark:bg-[#323332] rounded-md shadow-2xl transition-colors duration-300">
                 <h1 className="font-bold text-lg text-center py-[10px] rounded-md dark:text-white">Paint & Spill</h1>
 
                 { /* scoreboard and buttons */}
-                <div className="flex flex-row mt-[10px] mb-[20px] px-[15px] items-center dark:text-white">
-                    <span>Moves used: <strong>{gameState.moves}</strong></span>
+                <div className="grid grid-cols-3 mt-[10px] mb-[20px] px-[15px] items-center dark:text-white">
+                    <span className='text-[0.92rem] sm:text-base'>Moves used: <strong>{gameState.moves}</strong></span>
 
-                    <label className='flex flex-row ml-[40px] items-center'>
+                    <label className='flex flex-row ml-[20px] sm:ml-[45px] items-center'>
                         <input type="checkbox" id="cbox-icons" onChange={() => setGameState({ ...gameState, icons: !gameState.icons })} />
-                        <span className='ml-[7px]'>Show icons</span>
+                        <span className='ml-[7px] text-[0.92rem] sm:text-base'>Show icons</span>
                     </label>
 
 
                     <div className="flex flex-row ml-auto">
                         <LuRefreshCw className='text-2xl cursor-pointer' onClick={() => setModalNewGame(true)} />
                         {gameState.darkMode
-                            ? <BsSunFill className='text-2xl ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: false })} />
-                            : <BsMoonFill className='text-2xl ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: true })} />}
-                        <BsQuestionCircle className='text-2xl ml-[15px] cursor-pointer' />
+                            ? <BsSunFill className='text-2xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: false })} />
+                            : <BsMoonFill className='text-2xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: true })} />}
+                        <BsQuestionCircle className='text-2xl ml-[8px] sm:ml-[13px] cursor-pointer' />
                     </div>
                 </div>
 
@@ -146,7 +146,7 @@ const App = () => {
             </div>
 
             <div className='w-full h-[60px] absolute bottom-0 flex items-center justify-center'>
-                <span className='font-semibold text-white mr-[20px]'>Powered ⚡ by Bautista Sánchez</span>
+                <span className='font-semibold text-white mr-[20px]'>made ⚡ by bautt-s</span>
 
                 <a href='https://github.com/bautt-s/bautts-spill-game' target='_blank'>
                     <BsGithub className='text-3xl text-white' />

@@ -87,35 +87,35 @@ const Selector: React.FC<SelectorType> = (props) => {
     const { gameState, setGameState, gameboard, setGameboard, highscores, setHighscores } = props
 
     return (
-        <div className="flex flex-row gap-10 justify-center mt-[10px] pb-[20px]">
-            <div className={`bg-[#C6262E] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
+        <div className="flex flex-row gap-7 sm:gap-10 justify-center mt-[10px] pb-[20px]">
+            <div className={`bg-[#C6262E] w-[35px] h-[35px] sm:w-[50px] sm:h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
                 onClick={() => handleMove('red', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <FaAppleAlt className='text-white text-3xl' />}
+                {gameState.icons && <FaAppleAlt className='text-white text-2xl sm:text-3xl' />}
             </div>
 
-            <div className={`bg-[#F9C541] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
+            <div className={`bg-[#F9C541] w-[35px] h-[35px] sm:w-[50px] sm:h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
                 onClick={() => handleMove('yellow', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <AiFillStar className='text-white text-3xl' />}
+                {gameState.icons && <AiFillStar className='text-white text-2xl sm:text-3xl' />}
             </div>
 
-            <div className={`bg-[#68B622] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
+            <div className={`bg-[#68B622] w-[35px] h-[35px] sm:w-[50px] sm:h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
                 onClick={() => handleMove('green', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <IoMdFlower className='text-white text-3xl' />}
+                {gameState.icons && <IoMdFlower className='text-white text-2xl sm:text-3xl' />}
             </div>
 
-            <div className={`bg-[#3689E6] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
+            <div className={`bg-[#3689E6] w-[35px] h-[35px] sm:w-[50px] sm:h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
                 onClick={() => handleMove('blue', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <FaAnchor className='text-white text-3xl' />}
+                {gameState.icons && <FaAnchor className='text-white text-2xl sm:text-3xl' />}
             </div>
 
-            <div className={`bg-[#A56CE3] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
+            <div className={`bg-[#A56CE3] w-[35px] h-[35px] sm:w-[50px] sm:h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
                 onClick={() => handleMove('purple', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <FaPaw className='text-white text-3xl' />}
+                {gameState.icons && <FaPaw className='text-white text-2xl sm:text-3xl' />}
             </div>
 
-            <div className={`bg-[#C16601] w-[50px] h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('brown', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <FaBasketballBall className='text-white text-3xl' />}
+            <div className={`bg-[#F4679D] w-[35px] h-[35px] sm:w-[50px] sm:h-[50px] rounded-md cursor-pointer flex items-center justify-center`}
+                onClick={() => handleMove('pink', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
+                {gameState.icons && <FaBasketballBall className='text-white text-2xl sm:text-3xl' />}
             </div>
 
         </div>
