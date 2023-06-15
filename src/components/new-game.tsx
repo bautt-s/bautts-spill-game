@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+// typing used for component props
 type NewGameType = {
     gameState: {
         difficulty: string,
