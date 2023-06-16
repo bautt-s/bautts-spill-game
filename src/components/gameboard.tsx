@@ -47,8 +47,8 @@ const Gameboard: React.FC<GameboardProps> = (props) => {
                         <div key={rowIndex} className="flex flex-row">
                             {row.map((value, colIndex) => {
                                 return (
-                                    <div className={`${value.id === 0 ? 'border-[2px] border-white dark:border-white border-dashed' : 'border-r-[1px] border-b-[1px]'} 
-                                    dark:border-[#323332] flex items-center justify-center ${pixelSize} ${value.color}`} key={colIndex}>
+                                    <div className={`${value.id === 0 && gameState.moves === 0 ? 'border-[2px] border-white dark:border-white border-dashed' : 'border-r-[1px] border-b-[1px]'} 
+                                    dark:border-[#323332] flex items-center justify-center ${pixelSize} ${value.color} transition-colors duration-300`} key={colIndex}>
 
                                         {(icons && value.color === 'red') && <FaAppleAlt className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
                                         {(icons && value.color === 'yellow') && <AiFillStar className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}

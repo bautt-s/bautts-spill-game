@@ -40,7 +40,7 @@ const NewGame: React.FC<NewGameType> = (props) => {
                 <div className='grid grid-cols-3 gap-[10px] mt-[15px]'>
                     <button
                         onClick={() => setSelected('easy')} className={`flex flex-col pl-[10px] py-[5px] rounded-md 
-                    ${selected === 'easy' ? 'bg-[#01D1B3] dark:bg-[#18e2c4] text-white font-semibold' : 
+                    ${selected === 'easy' ? 'bg-[#01D1B3] dark:bg-[#18e2c4] dark:text-[#323332] text-white font-semibold' : 
                     'bg-[#DBDBDA] hover:bg-[#d1d1d1] transition-all duration-300 dark:bg-[#707270] dark:hover:bg-[#7d807d] dark:text-white font-semibold'}`}>
                         <span>Easy</span>
                         <span>[5x5]</span>
@@ -56,7 +56,7 @@ const NewGame: React.FC<NewGameType> = (props) => {
 
                     <button
                         onClick={() => setSelected('hard')} className={`flex flex-col pl-[10px] py-[5px] rounded-md 
-                    ${selected === 'hard' ? 'bg-[#01D1B3] dark:bg-[#18e2c4] text-white font-semibold' : 
+                    ${selected === 'hard' ? 'bg-[#01D1B3] dark:bg-[#18e2c4] dark:text-[#323332] text-white font-semibold' : 
                     'bg-[#DBDBDA] hover:bg-[#d1d1d1] transition-all duration-300 dark:bg-[#707270] dark:hover:bg-[#7d807d] dark:text-white font-semibold'}`}>
                         <span>Hard</span>
                         <span>[15x15]</span>
