@@ -3,6 +3,7 @@ import { LuRefreshCw } from 'react-icons/lu'
 import Gameboard from './components/gameboard'
 import NewGame from './components/new-game'
 import Selector from './components/color-selector'
+import HelpModal from './components/help'
 import { useState, useEffect } from 'react'
 
 // type for the global game state object
@@ -77,6 +78,7 @@ const App = () => {
         hard: 0,
     })
 
+    const [modalHelp, setModalHelp] = useState(false)
     const [modalNewGame, setModalNewGame] = useState(false)
     const [gameboard, setGameboard] = useState(generateMatrix(gameState.difficulty))
 
@@ -128,7 +130,7 @@ const App = () => {
                             {gameState.darkMode
                                 ? <BsSunFill className='text-2xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: false })} />
                                 : <BsMoonFill className='text-2xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: true })} />}
-                            <BsQuestionCircle className='text-2xl ml-[8px] sm:ml-[13px] cursor-pointer' />
+                            <BsQuestionCircle className='text-2xl ml-[8px] sm:ml-[13px] cursor-pointer' onClick={() => setModalHelp(true)} />
                         </div>
                     </div>
 
@@ -151,6 +153,7 @@ const App = () => {
             </div>
 
             {modalNewGame && <NewGame setModalNewGame={setModalNewGame} gameState={gameState} setGameState={setGameState} highscores={highscores} />}
+            {modalHelp && <HelpModal darkMode={gameState.darkMode} setModalHelp={setModalHelp} />}
         </div>
     )
 }
