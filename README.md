@@ -1,6 +1,6 @@
 # Paint & Spill Game
 
-Simple web browser game for having a quick good fun!
+Simple web browser game for a quick good fun!
 Game is inspired by Avojak's game for ElementaryOS. Its original repository can be found at [https://github.com/avojak/paint-spill](https://github.com/avojak/paint-spill)
 
 ![image](https://github.com/bautt-s/bautts-spill-game/assets/109627713/10274754-9bd4-4a7e-8fe7-f180615fbaed)
