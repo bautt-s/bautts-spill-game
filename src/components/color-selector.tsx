@@ -43,8 +43,6 @@ const Selector: React.FC<SelectorType> = (props) => {
         highscores: SelectorType['highscores'],
         setHighscores: SelectorType['setHighscores']
     ) => {
-        
-        const restOfBlocks = []
         const gameboardAux = gameboard
         const originBlocks = [gameboard[0][0].id]
         const currentColor = gameboard[0][0].color
@@ -57,19 +55,17 @@ const Selector: React.FC<SelectorType> = (props) => {
                     // this array is self explaining. here we store the 4 neighbours blocks of the 
                     // targeted block, in order to see if any of them is connected to origin.
                     const neighbourBlocks = []
-    
+
                     if (i !== 0) neighbourBlocks.push(gameboard[i - 1][j])
                     if (j !== 0) neighbourBlocks.push(gameboard[i][j - 1])
                     if (i !== gameboard.length - 1) neighbourBlocks.push(gameboard[i + 1][j])
                     if (j !== gameboard.length - 1) neighbourBlocks.push(gameboard[i][j + 1])
-    
+
                     for (let k = 0; k < neighbourBlocks.length; k++) {
                         if (originBlocks.includes(neighbourBlocks[k].id) && gameboard[i][j].color === currentColor && !originBlocks.includes(gameboard[i][j].id)) {
                             originBlocks.push(gameboard[i][j].id)
                         }
                     }
-
-                    if (!originBlocks.includes(gameboard[i][j].id)) restOfBlocks.push(gameboard[i][j].id)
                 }
             }
 
@@ -78,7 +74,15 @@ const Selector: React.FC<SelectorType> = (props) => {
             }
         }
 
-        if (originBlocks.length === gameboard.length * gameboard.length-1 && restOfBlocks.length === 1) {
+        // win condition: if the painted blocks' amount is equal to
+        // squared board's length, then I trigger the victory
+        const paintedBlocks = gameboardAux.reduce((count, row) => {
+            return count + row.reduce((rowCount, obj) => {
+                return rowCount + (obj.color === color ? 1 : 0);
+            }, 0)
+        }, 0)
+
+        if (paintedBlocks === gameboard.length * gameboard.length) {
             setGameState({ ...gameState, victory: true })
             if (gameState.moves < highscores[gameState.difficulty] || highscores[gameState.difficulty] === 0) setHighscores({ ...highscores, [gameState.difficulty]: gameState.moves })
         }
