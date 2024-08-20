@@ -16,7 +16,7 @@ type GameStateType = {
     moves: number
 }
 
-// quite simple function that takes a random number from 0 to 5, 
+// simple function that takes a random number from 0 to 5, 
 // and gets a color based on that number. might add some complexity in
 // random generation in a near future, according to difficulty
 const generateRandomColor = () => {
@@ -82,6 +82,14 @@ const App = () => {
     const [modalNewGame, setModalNewGame] = useState(false)
     const [gameboard, setGameboard] = useState(generateMatrix(gameState.difficulty))
 
+
+    useEffect(() => {
+        if (modalHelp || modalNewGame) {
+            document.body.style.overflowY = 'hidden';
+        } else document.body.style.overflowY = 'scroll';
+        return () => { };
+    }, [modalHelp, modalNewGame]);
+
     // triggering when the user first boots the game or restarts it, we generate
     // another random board and clean all the game state back to default
     useEffect(() => {
@@ -110,27 +118,27 @@ const App = () => {
     }, [highscores])
 
     return (
-        <div className={`overflow-y-hidden w-screen h-screen bg-[#555555] flex flex-col ${gameState.darkMode && 'dark'}`}>
-            <div className='flex flex-col justify-center items-center h-full'>
-                <div className="w-[400px] sm:w-[600px] bg-white dark:bg-[#323332] rounded-md shadow-2xl transition-colors duration-300">
+        <div className={`pt-4 min-w-screen min-h-screen bg-[#555555] flex flex-col ${gameState.darkMode && 'dark'}`}>
+            <div className='flex flex-col items-center'>
+                <div className="bg-white dark:bg-[#323332] rounded-md shadow-2xl transition-colors duration-300">
                     <h1 className="font-bold text-lg text-center py-[10px] rounded-md dark:text-white">Paint & Spill</h1>
 
                     { /* scoreboard and buttons */}
-                    <div className="grid grid-cols-3 mt-[10px] mb-[20px] px-[15px] items-center dark:text-white">
-                        <span className='text-[0.92rem] sm:text-base'>Moves used: <strong>{gameState.moves}</strong></span>
+                    <div className="grid grid-cols-3 mt-[5px] mb-[20px] px-[15px] items-center dark:text-white">
+                        <span className='text-sm'>Moves used: <strong>{gameState.moves}</strong></span>
 
-                        <label className='flex flex-row ml-[20px] sm:ml-[45px] items-center'>
+                        <label className='flex flex-row mx-auto items-center'>
                             <input type="checkbox" id="cbox-icons" className='mt-[2px]' onChange={() => setGameState({ ...gameState, icons: !gameState.icons })} />
-                            <span className='ml-[7px] text-[0.92rem] sm:text-base'>Show icons</span>
+                            <span className='ml-[7px] text-sm'>Show icons</span>
                         </label>
 
 
                         <div className="flex flex-row ml-auto items-center">
-                            <LuRefreshCw className='text-2xl cursor-pointer' onClick={() => setModalNewGame(true)} />
+                            <LuRefreshCw className='text-xl cursor-pointer' onClick={() => setModalNewGame(true)} />
                             {gameState.darkMode
-                                ? <BsSunFill className='text-2xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: false })} />
-                                : <BsMoonFill className='text-2xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: true })} />}
-                            <BsQuestionCircle className='text-2xl ml-[8px] sm:ml-[13px] cursor-pointer' onClick={() => setModalHelp(true)} />
+                                ? <BsSunFill className='text-xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: false })} />
+                                : <BsMoonFill className='text-xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: true })} />}
+                            <BsQuestionCircle className='text-xl ml-[8px] sm:ml-[13px] cursor-pointer' onClick={() => setModalHelp(true)} />
                         </div>
                     </div>
 

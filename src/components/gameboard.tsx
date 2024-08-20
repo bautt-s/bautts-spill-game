@@ -40,8 +40,8 @@ const Gameboard: React.FC<GameboardProps> = (props) => {
     const pixelSize = `size-${generatePixelSize()}`
 
     return (
-        <div className="w-full pb-[25px] px-[5px] sm:px-[15px]">
-            <div className='w-[390px] sm:w-[570px]'>
+        <div className="w-full pb-[20px] px-[5px] sm:px-[15px]">
+            <div className='flex flex-col items-center'>
                 {gameboard.map((row, rowIndex) => {
                     return (
                         <div key={rowIndex} className="flex flex-row">
@@ -49,7 +49,6 @@ const Gameboard: React.FC<GameboardProps> = (props) => {
                                 return (
                                     <div className={`${value.id === 0 && gameState.moves === 0 ? 'border-[2px] border-white dark:border-white border-dashed' : 'border-r-[1px] border-b-[1px]'} 
                                     dark:border-[#323332] flex items-center justify-center ${pixelSize} ${value.color} transition-colors duration-300`} key={colIndex}>
-
                                         {(icons && value.color === 'red') && <FaAppleAlt className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
                                         {(icons && value.color === 'yellow') && <AiFillStar className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}
                                         {(icons && value.color === 'green') && <IoMdFlower className={`text-white ${(pixelSize === 'size-38') ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`} />}

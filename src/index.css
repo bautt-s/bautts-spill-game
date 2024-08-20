@@ -27,33 +27,16 @@
 }
 
 .size-114 {
-    width: 114px;
-    height: 114px;
+    width: 78px;
+    height: 78px;
 }
 
 .size-57 {
-    width: 57px;
-    height: 57px;
+    width: 39px;
+    height: 39px;
 }
 
 .size-38 {
-    width: 38px;
-    height: 38px;
-}
-
-@media only screen and (max-width: 600px) {
-    .size-114 {
-        width: 78px;
-        height: 78px;
-    }
-
-    .size-57 {
-        width: 39px;
-        height: 39px;
-    }
-
-    .size-38 {
-        width: 26px;
-        height: 26px;
-    }
+    width: 26px;
+    height: 26px;
 }
