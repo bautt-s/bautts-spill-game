@@ -1,129 +1,102 @@
-import { FaPaw, FaAnchor, FaAppleAlt, FaBasketballBall } from 'react-icons/fa'
-import { AiFillStar } from 'react-icons/ai'
-import { IoMdFlower } from 'react-icons/io'
+import React, { memo, useCallback } from 'react'
+import { COLORS, ColorName } from '../constants'
+import { GameState, Gameboard, Highscores } from '../types'
+import { COLOR_ICONS } from '../color-icons'
 
-// type used for component props and handleMove function arguments
-type SelectorType = {
-    gameboard: {
-        color: string,
-        id: number
-    }[][]
-
-    gameState: {
-        difficulty: 'easy' | 'medium' | 'hard',
-        darkMode: boolean,
-        victory: boolean,
-        icons: boolean,
-        games: number
-        moves: number
-    }
-
-    highscores: {
-        easy: number,
-        medium: number,
-        hard: number
-    }
-
-    setGameState: Function
-    setGameboard: Function
-    setHighscores: Function
+type SelectorProps = {
+    gameboard: Gameboard
+    gameState: GameState
+    highscores: Highscores
+    setGameState: React.Dispatch<React.SetStateAction<GameState>>
+    setGameboard: React.Dispatch<React.SetStateAction<Gameboard>>
+    setHighscores: React.Dispatch<React.SetStateAction<Highscores>>
 }
 
-const Selector: React.FC<SelectorType> = (props) => {
-    const { gameState, setGameState, gameboard, setGameboard, highscores, setHighscores } = props
+// BFS flood-fill from origin (0,0): much faster than the previous O(n²)
+// neighbor scan and easier to reason about.
+const floodFill = (board: Gameboard, newColor: ColorName): Gameboard => {
+    const size = board.length
+    const originColor = board[0][0].color
+    if (originColor === newColor) return board
 
-    // this function is where the magic happens: we handle the whole 
-    // state of the game from here, along with the win condition.
-    const handleMove = (
-        color: string,
-        gameboard: SelectorType['gameboard'],
-        setGameState: SelectorType['setGameState'],
-        gameState: SelectorType['gameState'],
-        setGameboard: SelectorType['setGameboard'],
-        highscores: SelectorType['highscores'],
-        setHighscores: SelectorType['setHighscores']
-    ) => {
-        const gameboardAux = gameboard
-        const originBlocks = [gameboard[0][0].id]
-        const currentColor = gameboard[0][0].color
+    const next: Gameboard = board.map(row => row.map(cell => ({ ...cell })))
+    const queue: [number, number][] = [[0, 0]]
+    const visited = new Set<number>([0])
 
-        if (currentColor !== color) {
-            setGameState({ ...gameState, moves: gameState.moves + 1 })
+    while (queue.length > 0) {
+        const [r, c] = queue.shift()!
+        next[r][c].color = newColor
 
-            for (let i = 0; i < gameboard.length; i++) {
-                for (let j = 0; j < gameboard.length; j++) {
-                    // this array is self explaining. here we store the 4 neighbours blocks of the 
-                    // targeted block, in order to see if any of them is connected to origin.
-                    const neighbourBlocks = []
-
-                    if (i !== 0) neighbourBlocks.push(gameboard[i - 1][j])
-                    if (j !== 0) neighbourBlocks.push(gameboard[i][j - 1])
-                    if (i !== gameboard.length - 1) neighbourBlocks.push(gameboard[i + 1][j])
-                    if (j !== gameboard.length - 1) neighbourBlocks.push(gameboard[i][j + 1])
-
-                    for (let k = 0; k < neighbourBlocks.length; k++) {
-                        if (originBlocks.includes(neighbourBlocks[k].id) && gameboard[i][j].color === currentColor && !originBlocks.includes(gameboard[i][j].id)) {
-                            originBlocks.push(gameboard[i][j].id)
-                        }
-                    }
-                }
-            }
-
-            for (let i = 0; i < gameboard.length; i++) {
-                gameboardAux[i].filter(block => originBlocks.includes(block.id)).forEach(b => b.color = color)
-            }
+        const neighbors: [number, number][] = [
+            [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1],
+        ]
+        for (const [nr, nc] of neighbors) {
+            if (nr < 0 || nc < 0 || nr >= size || nc >= size) continue
+            const key = nr * size + nc
+            if (visited.has(key)) continue
+            if (board[nr][nc].color !== originColor) continue
+            visited.add(key)
+            queue.push([nr, nc])
         }
-
-        // win condition: if the painted blocks' amount is equal to
-        // squared board's length, then I trigger the victory
-        const paintedBlocks = gameboardAux.reduce((count, row) => {
-            return count + row.reduce((rowCount, obj) => {
-                return rowCount + (obj.color === color ? 1 : 0);
-            }, 0)
-        }, 0)
-
-        if (paintedBlocks === gameboard.length * gameboard.length) {
-            setGameState({ ...gameState, victory: true })
-            if (gameState.moves < highscores[gameState.difficulty] || highscores[gameState.difficulty] === 0) setHighscores({ ...highscores, [gameState.difficulty]: gameState.moves })
-        }
-
-        setGameboard(gameboardAux)
     }
+    return next
+}
+
+const isUniformColor = (board: Gameboard, color: ColorName): boolean => {
+    for (const row of board) {
+        for (const cell of row) {
+            if (cell.color !== color) return false
+        }
+    }
+    return true
+}
+
+const Selector: React.FC<SelectorProps> = (props) => {
+    const { gameState, setGameState, gameboard, setGameboard, highscores, setHighscores } = props
+    const currentColor = gameboard[0][0].color
+    const disabled = gameState.victory
+
+    const handleMove = useCallback((color: ColorName) => {
+        if (disabled) return
+        if (currentColor === color) return
+
+        const nextBoard = floodFill(gameboard, color)
+        const nextMoves = gameState.moves + 1
+        setGameboard(nextBoard)
+
+        if (isUniformColor(nextBoard, color)) {
+            setGameState(prev => ({ ...prev, moves: nextMoves, victory: true }))
+            const prevBest = highscores[gameState.difficulty]
+            if (prevBest === 0 || nextMoves < prevBest) {
+                setHighscores(prev => ({ ...prev, [gameState.difficulty]: nextMoves }))
+            }
+        } else {
+            setGameState(prev => ({ ...prev, moves: nextMoves }))
+        }
+    }, [disabled, currentColor, gameboard, gameState.moves, gameState.difficulty, highscores, setGameboard, setGameState, setHighscores])
 
     return (
-        <div className="flex flex-row gap-x-7 justify-center pb-[15px]">
-            <div className={`bg-[#C6262E] w-[35px] h-[35px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('red', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <FaAppleAlt className='text-white text-2xl sm:text-3xl' />}
-            </div>
-
-            <div className={`bg-[#F9C541] w-[35px] h-[35px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('yellow', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <AiFillStar className='text-white text-2xl sm:text-3xl' />}
-            </div>
-
-            <div className={`bg-[#68B622] w-[35px] h-[35px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('green', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <IoMdFlower className='text-white text-2xl sm:text-3xl' />}
-            </div>
-
-            <div className={`bg-[#3689E6] w-[35px] h-[35px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('blue', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <FaAnchor className='text-white text-2xl' />}
-            </div>
-
-            <div className={`bg-[#A56CE3] w-[35px] h-[35px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('purple', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <FaPaw className='text-white text-2xl' />}
-            </div>
-
-            <div className={`bg-[#F4679D] w-[35px] h-[35px] rounded-md cursor-pointer flex items-center justify-center`}
-                onClick={() => handleMove('pink', gameboard, setGameState, gameState, setGameboard, highscores, setHighscores)}>
-                {gameState.icons && <FaBasketballBall className='text-white text-2xl sm:text-3xl' />}
-            </div>
-
+        <div className="flex flex-row gap-x-7 justify-center pb-[15px]" role="group" aria-label="Color selector">
+            {COLORS.map(({ name, hex }) => {
+                const Icon = COLOR_ICONS[name]
+                const isCurrent = currentColor === name
+                return (
+                    <button
+                        key={name}
+                        type="button"
+                        aria-label={`Paint board ${name}`}
+                        disabled={disabled || isCurrent}
+                        onClick={() => handleMove(name)}
+                        style={{ backgroundColor: hex }}
+                        className={`w-[35px] h-[35px] rounded-md flex items-center justify-center transition-opacity
+                            ${(disabled || isCurrent) ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:opacity-90'}`}
+                    >
+                        {gameState.icons && <Icon className='text-white text-2xl sm:text-3xl' aria-hidden="true" />}
+                    </button>
+                )
+            })}
         </div>
     )
 }
 
-export default Selector
+export default memo(Selector)

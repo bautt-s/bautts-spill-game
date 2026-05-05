@@ -4,165 +4,168 @@ import Gameboard from './components/gameboard'
 import NewGame from './components/new-game'
 import Selector from './components/color-selector'
 import HelpModal from './components/help'
-import { useState, useEffect } from 'react'
+import ErrorBoundary from './components/error-boundary'
+import { useState, useEffect, useCallback } from 'react'
+import { COLORS, BOARD_SIZES, HIGHSCORES_STORAGE_KEY, ColorName, Difficulty } from './constants'
+import { GameState, Gameboard as GameboardType, Highscores } from './types'
 
-// type for the global game state object
-type GameStateType = {
-    difficulty: 'easy' | 'medium' | 'hard',
-    darkMode: boolean,
-    victory: boolean,
-    icons: boolean,
-    games: number
-    moves: number
+const generateRandomColor = (): ColorName => {
+    return COLORS[Math.floor(Math.random() * COLORS.length)].name
 }
 
-// simple function that takes a random number from 0 to 5, 
-// and gets a color based on that number. might add some complexity in
-// random generation in a near future, according to difficulty
-const generateRandomColor = () => {
-    const randomDecimal = Math.random();
-    const randomNumber = Math.floor(randomDecimal * 6);
+const generateMatrix = (difficulty: Difficulty): GameboardType => {
+    const size = BOARD_SIZES[difficulty]
+    const matrix: GameboardType = []
+    let id = 0
 
-    if (randomNumber === 0) return 'red'
-    else if (randomNumber === 1) return 'yellow'
-    else if (randomNumber === 2) return 'green'
-    else if (randomNumber === 3) return 'blue'
-    else if (randomNumber === 4) return 'purple'
-    else return 'pink'
-}
-
-// this function establishes a matrix size based on game difficulty, and then
-// generates the matrix based on that size, generating a random color in each position.
-const generateMatrix = (difficulty: string) => {
-    const matrix = []
-    let id = 0;
-    let size;
-
-    if (difficulty === 'easy') size = 5;
-    else if (difficulty === 'medium') size = 10;
-    else if (difficulty === 'hard') size = 15;
-    else throw new Error('Invalid difficulty level');
-    
     for (let i = 0; i < size; i++) {
-        const row = [];
-
+        const row = []
         for (let j = 0; j < size; j++) {
-            row.push({
-                id,
-                color: generateRandomColor()
-            });
-
+            row.push({ id, color: generateRandomColor() })
             id++
         }
-        matrix.push(row);
+        matrix.push(row)
     }
+    return matrix
+}
 
-    return matrix;
+const loadHighscores = (): Highscores => {
+    try {
+        const raw = window.localStorage.getItem(HIGHSCORES_STORAGE_KEY)
+        if (!raw) return { easy: 0, medium: 0, hard: 0 }
+        const parsed = JSON.parse(raw)
+        return {
+            easy: typeof parsed?.easy === 'number' ? parsed.easy : 0,
+            medium: typeof parsed?.medium === 'number' ? parsed.medium : 0,
+            hard: typeof parsed?.hard === 'number' ? parsed.hard : 0,
+        }
+    } catch {
+        return { easy: 0, medium: 0, hard: 0 }
+    }
 }
 
 const App = () => {
-    // here we control most of the game general state, in order to optimize code writing and reusability
-    // (excluding highscores and gameboard, while we could in theory do that, it would lead to messy code)
-    const [gameState, setGameState] = useState<GameStateType>({
+    const [gameState, setGameState] = useState<GameState>({
         difficulty: 'medium',
         darkMode: false,
         victory: false,
         icons: false,
         games: 0,
-        moves: 0
+        moves: 0,
     })
 
-    const [highscores, setHighscores] = useState({
-        easy: 0,
-        medium: 0,
-        hard: 0,
-    })
-
+    const [highscores, setHighscores] = useState<Highscores>(loadHighscores)
     const [modalHelp, setModalHelp] = useState(false)
     const [modalNewGame, setModalNewGame] = useState(false)
-    const [gameboard, setGameboard] = useState(generateMatrix(gameState.difficulty))
-
+    const [gameboard, setGameboard] = useState<GameboardType>(() => generateMatrix(gameState.difficulty))
 
     useEffect(() => {
-        if (modalHelp || modalNewGame) {
-            document.body.style.overflowY = 'hidden';
-        } else document.body.style.overflowY = 'scroll';
-        return () => { };
-    }, [modalHelp, modalNewGame]);
+        document.body.style.overflowY = (modalHelp || modalNewGame) ? 'hidden' : 'scroll'
+    }, [modalHelp, modalNewGame])
 
-    // triggering when the user first boots the game or restarts it, we generate
-    // another random board and clean all the game state back to default
+    // When user starts a new game (games counter bumps), regenerate the board
+    // and reset per-game state. Functional setter avoids stale closures.
     useEffect(() => {
+        if (gameState.games === 0) return
         setGameboard(generateMatrix(gameState.difficulty))
-        setGameState({
-            ...gameState,
-            victory: false,
-            moves: 0
-        })
-    }, [gameState.games])
+        setGameState(prev => ({ ...prev, victory: false, moves: 0 }))
+    }, [gameState.games, gameState.difficulty])
 
-    // when the user wins, we want them to see the new game window
     useEffect(() => {
         if (gameState.victory) setModalNewGame(true)
     }, [gameState.victory])
 
-    // these two useEffect make sure the game is correctly getting
-    // and setting highscores from the browser's local storage.
     useEffect(() => {
-        const highscoresData = window.localStorage.getItem('SPILLGAME_HIGHSCORES')
-        if (highscoresData) setHighscores(JSON.parse(highscoresData))
-    }, [])
-
-    useEffect(() => {
-        if (gameState.victory) window.localStorage.setItem('SPILLGAME_HIGHSCORES', JSON.stringify(highscores))
+        try {
+            window.localStorage.setItem(HIGHSCORES_STORAGE_KEY, JSON.stringify(highscores))
+        } catch {
+            // Storage may be unavailable (private mode, quota exceeded). Ignore.
+        }
     }, [highscores])
 
+    const restart = useCallback(() => setModalNewGame(true), [])
+    const toggleDark = useCallback(() => setGameState(p => ({ ...p, darkMode: !p.darkMode })), [])
+    const toggleIcons = useCallback(() => setGameState(p => ({ ...p, icons: !p.icons })), [])
+    const openHelp = useCallback(() => setModalHelp(true), [])
+
     return (
-        <div className={`pt-4 min-w-screen min-h-screen bg-[#555555] flex flex-col ${gameState.darkMode && 'dark'}`}>
-            <div className='flex flex-col items-center'>
-                <div className="bg-white dark:bg-[#323332] rounded-md shadow-2xl transition-colors duration-300">
-                    <h1 className="font-bold text-lg text-center py-[10px] rounded-md dark:text-white">Paint & Spill</h1>
+        <ErrorBoundary>
+            <div className={`pt-4 min-w-screen min-h-screen bg-[#555555] flex flex-col ${gameState.darkMode && 'dark'}`}>
+                <div className='flex flex-col items-center'>
+                    <div className="bg-white dark:bg-[#323332] rounded-md shadow-2xl transition-colors duration-300">
+                        <h1 className="font-bold text-lg text-center py-[10px] rounded-md dark:text-white">Paint & Spill</h1>
 
-                    { /* scoreboard and buttons */}
-                    <div className="grid grid-cols-3 mt-[5px] mb-[20px] px-[15px] items-center dark:text-white">
-                        <span className='text-sm'>Moves used: <strong>{gameState.moves}</strong></span>
+                        <div className="grid grid-cols-3 mt-[5px] mb-[20px] px-[15px] items-center dark:text-white">
+                            <span className='text-sm'>Moves used: <strong>{gameState.moves}</strong></span>
 
-                        <label className='flex flex-row mx-auto items-center'>
-                            <input type="checkbox" id="cbox-icons" className='mt-[2px]' onChange={() => setGameState({ ...gameState, icons: !gameState.icons })} />
-                            <span className='ml-[7px] text-sm'>Show icons</span>
-                        </label>
+                            <label htmlFor="cbox-icons" className='flex flex-row mx-auto items-center cursor-pointer'>
+                                <input
+                                    type="checkbox"
+                                    id="cbox-icons"
+                                    className='mt-[2px]'
+                                    checked={gameState.icons}
+                                    onChange={toggleIcons}
+                                />
+                                <span className='ml-[7px] text-sm'>Show icons</span>
+                            </label>
 
-
-                        <div className="flex flex-row ml-auto items-center">
-                            <LuRefreshCw className='text-xl cursor-pointer' onClick={() => setModalNewGame(true)} />
-                            {gameState.darkMode
-                                ? <BsSunFill className='text-xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: false })} />
-                                : <BsMoonFill className='text-xl ml-[10px] sm:ml-[15px] cursor-pointer' onClick={() => setGameState({ ...gameState, darkMode: true })} />}
-                            <BsQuestionCircle className='text-xl ml-[8px] sm:ml-[13px] cursor-pointer' onClick={() => setModalHelp(true)} />
+                            <div className="flex flex-row ml-auto items-center">
+                                <button type="button" aria-label="Restart game" onClick={restart} className="cursor-pointer">
+                                    <LuRefreshCw className='text-xl' aria-hidden="true" />
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label={gameState.darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                                    onClick={toggleDark}
+                                    className="ml-[10px] sm:ml-[15px] cursor-pointer"
+                                >
+                                    {gameState.darkMode
+                                        ? <BsSunFill className='text-xl' aria-hidden="true" />
+                                        : <BsMoonFill className='text-xl' aria-hidden="true" />}
+                                </button>
+                                <button type="button" aria-label="How to play" onClick={openHelp} className="ml-[8px] sm:ml-[13px] cursor-pointer">
+                                    <BsQuestionCircle className='text-xl' aria-hidden="true" />
+                                </button>
+                            </div>
                         </div>
+
+                        <Gameboard gameState={gameState} gameboard={gameboard} />
+
+                        <Selector
+                            gameState={gameState}
+                            setGameState={setGameState}
+                            gameboard={gameboard}
+                            setGameboard={setGameboard}
+                            highscores={highscores}
+                            setHighscores={setHighscores}
+                        />
                     </div>
-
-                    { /* gameboard */}
-                    <Gameboard gameState={gameState} gameboard={gameboard} />
-
-                    { /* selector */}
-                    <Selector gameState={gameState} setGameState={setGameState} gameboard={gameboard}
-                        setGameboard={setGameboard} highscores={highscores} setHighscores={setHighscores} />
                 </div>
+
+                <div className='w-full h-[60px] flex items-center justify-center'>
+                    <span className='font-semibold text-white mr-[20px] font-mono'>made ⚡ by bautt-s</span>
+
+                    <a
+                        href='https://github.com/bautt-s/bautts-spill-game'
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        aria-label='View source on GitHub'
+                    >
+                        <BsGithub className='text-3xl text-white' aria-hidden="true" />
+                    </a>
+                </div>
+
+                {modalNewGame && (
+                    <NewGame
+                        setModalNewGame={setModalNewGame}
+                        gameState={gameState}
+                        setGameState={setGameState}
+                        highscores={highscores}
+                    />
+                )}
+                {modalHelp && <HelpModal darkMode={gameState.darkMode} setModalHelp={setModalHelp} />}
             </div>
-
-            { /* credits */}
-            <div className='w-full h-[60px] flex items-center justify-center'>
-                <span className='font-semibold text-white mr-[20px] font-mono'>made ⚡ by bautt-s</span>
-
-                <a href='https://github.com/bautt-s/bautts-spill-game' target='_blank'>
-                    <BsGithub className='text-3xl text-white' />
-                </a>
-            </div>
-
-            {modalNewGame && <NewGame setModalNewGame={setModalNewGame} gameState={gameState} setGameState={setGameState} highscores={highscores} />}
-            {modalHelp && <HelpModal darkMode={gameState.darkMode} setModalHelp={setModalHelp} />}
-        </div>
+        </ErrorBoundary>
     )
 }
 
